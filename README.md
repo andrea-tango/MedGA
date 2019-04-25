@@ -14,7 +14,7 @@ This novel medical image enhancement technique is a promising solution suitable 
   
 ## <a name="ref"></a>Reference ##
 
-A detailed description of MedGA, as well as a complete experimental comparison with standard state-of-the-art algorithm for image enhancement by using the dataset described below ([Data](#data)), can be found in:
+A detailed description of MedGA, as well as a complete experimental comparison with standard state-of-the-art approaches for image enhancement by using the dataset described below ([Data](#data)), can be found in:
 
 - Rundo L., Tangherloni A., Nobile M.S., Militello C., Besozzi D., Mauri G., and Cazzaniga P.: "MedGA: a novel evolutionary method for image enhancement in medical imaging systems", Expert Systems with Applications, 119, 387-399, 2019. doi: 10.1016/j.eswa.2018.11.013
 
