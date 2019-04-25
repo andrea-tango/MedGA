@@ -67,16 +67,16 @@ For example, `MedGA` can be executed with the following command:
     python MedGA.py -i fibroids/01.tiff
     python MedGA.py -f fibroids
 
-The former will save the following files in the **output/01** folder:
+The **former** will save the following files in the **_output/01_** folder:
 - _fitness_ contains the fitness value of the best individual for each generation;
 - _information_ contains the GA settings used to perform the optimization. Note that the number of genes corresponds to the number of pixels composing the analyzed image;
 - _matrixBest_ contains the final best image as `TSV` file;
 - _terms_ contains the values of the 3 different terms composing the fitness function for each generation;
 - _threshold_ contains the optimal threshold for each generation.
 
-The **images** subfolder contains the original image, the best image after the GA initialization and the final best image.
+The **_images_** subfolder contains the original image, the best image after the GA initialization and the final best image.
 
-The later will save the described files and subfolder for each image in the **fibroids** folder.
+The **latter** will save the described files and subfolder for each image in the **_fibroids_** folder.
 
 By running `python MedGA.py` without specifying any parameter (or using `-h`), all the above parameters will be listed.
 
