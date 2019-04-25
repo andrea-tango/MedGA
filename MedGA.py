@@ -27,7 +27,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "src"))
 
 from MedGA_sequential import MedGA
 
-# MPI version of MedGA. It requires both MPI and mpi4py
+# MPI version of MedGA. It requires both MPI and mpi4py.
 def runMPI(folderIn, folderOut, population, generations, selection, cross_rate, mut_rate, pressure, elitism, cores, verbose):
 	try:
 		# Using mpiexec
@@ -36,7 +36,8 @@ def runMPI(folderIn, folderOut, population, generations, selection, cross_rate, 
 			                                                                          cross_rate, mut_rate, pressure,
 			                                                                          elitism, str(verbose))
 		
-		# Calling the MPI version of MedGA, which is based on the sequential version
+		# Calling the MPI version of MedGA, which distributes the computation on multiple cores
+		# by means of a Master-Slave paradigm
 		p = subprocess.call(run, shell=True)
 	except:
 		# Using mpirun
