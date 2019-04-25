@@ -29,27 +29,6 @@ from MedGA_sequential import MedGA
 
 # MPI version of MedGA. It requires both MPI and mpi4py
 def runMPI(folderIn, folderOut, population, generations, selection, cross_rate, mut_rate, pressure, elitism, cores, verbose):
-	if verbose:
-		print '********************************************************************************'
-		print "* Running the MPI version of MedGA\n"
-
-		print " * GA settings"
-		print "   -> Number of chromosome: %d"%population
-		print "   -> Number of elite chromosomes: %d"%elitism
-		print "   -> Number of generations: %d"%generations
-		print "   -> Crossover rate: %.2f"%cross_rate
-		print "   -> Mutation rate:  %.2f"%mut_rate
-
-		if selection == 'wheel':
-			print "   -> Selection: wheel roulette\n\n"
-		elif selection == 'ranking':
-			print "   -> Selection: ranking \n\n"
-		else:
-			print "   -> Selection: tournament with %d individuals\n"%pressure
-
-	if not os.path.exists(folderOut):
-		os.makedirs(folderOut)
-
 	try:
 		# Using mpiexec
 		run = "mpiexec -np %d python src/MedGA_mpi.py %s %s %d %d %s %f %f %d %d %s"%(cores, folderIn, folderOut,
@@ -71,9 +50,72 @@ def runMPI(folderIn, folderOut, population, generations, selection, cross_rate, 
 
 # Sequential version of MedGA
 def run(imagePath, folderIn, folderOut, population, generations, selection, cross_rate, mut_rate, pressure, elitism, verbose):
-	
+
+	startAll = time.time()
+
+	toProcess = []
+
+	# Looking for the provided input image
+	if folderIn is None:
+
+		ext = imagePath.split(".")[-1].lower()
+		listExts = ["tiff", "tif", "png", "jpeg", "jpg"]
+
+		if ext not in listExts:
+			print "******************************************************************************************"
+			print "Unsupported format. Please provide", listExts, "images"
+			print "Warning", imagePath, "has not been processed"
+			print "******************************************************************************************"
+			exit(-6)
+
+		if not os.path.exists(imagePath):
+			print "******************************************************************************************"
+			print imagePath, "does not exists"
+			print "Warning", imagePath, "has not been processed"
+			print "******************************************************************************************"
+			exit(-7)
+
+		else:
+			toProcess.append(imagePath)
+
+
+	else:
+		alreadyPrint = False
+		# Looking for the images in the provided input folder
+		listImages = glob.glob(folderIn+os.sep+"*")
+		for imagePath in listImages:
+			ext = imagePath.split(".")[-1]
+			listExts = ["tiff", "tif", "png", "png", "jpeg", "jpg"]
+
+			# Only tiff, png and jpg images can be elaborated
+			if ext not in listExts:
+				if not alreadyPrint:
+					print "******************************************************************************************"
+				print "Unsupported format. Please provide", listExts, "images"
+				print "Warning", imagePath, "will be not processed\n"
+				alreadyPrint = True
+				pass
+
+			elif not os.path.exists(imagePath):
+				if not alreadyPrint:
+					print "******************************************************************************************"
+				print imagePath, "does not exists"
+				print "Warning", imagePath, "will be not processed\n"
+				alreadyPrint = True
+				pass
+			
+			else:
+				toProcess.append(imagePath)
+
+	if not os.path.exists(folderOut):
+		os.makedirs(folderOut)
+
+	if len(toProcess) == 0:
+		print "******************************************************************************************"
+		exit(-11)
+
 	if verbose:
-		print '********************************************************************************'
+		print "******************************************************************************************"
 		print "* Running the sequential version of MedGA\n"
 
 		print " * GA settings"
@@ -89,56 +131,6 @@ def run(imagePath, folderIn, folderOut, population, generations, selection, cros
 			print "   -> Selection: ranking \n\n"
 		else:
 			print "   -> Selection: tournament with %d individuals\n\n"%pressure
-
-	startAll = time.time()
-
-	toProcess = []
-
-	# Looking for the provided input image
-	if folderIn is None:
-
-		ext = imagePath.split(".")[-1].lower()
-		listExts = ["tiff", "tif", "png", "jpeg", "jpg"]
-
-		if ext not in listExts:
-			print "Unsupported format. Please provide", listExts, "images"
-			print imagePath, "has not been processed"
-			print "Warning", imagePath, "has not been processed"
-			print '********************************************************************************'
-			exit(-6)
-
-		if not os.path.exists(imagePath):
-			print imagePath, "does not exists"
-			print "Warning", imagePath, "has not been processed"
-			print '********************************************************************************'
-			exit(-7)
-
-		else:
-			toProcess.append(imagePath)
-
-
-	else:
-		# Looking for the images in the provided input folder
-		listImages = glob.glob(folderIn+os.sep+"*")
-		for imagePath in listImages:
-			ext = imagePath.split(".")[-1]
-			listExts = ["tiff", "tif", "png", "png", "jpeg", "jpg"]
-
-			# Only tiff, png and jpg images can be elaborated
-			if ext not in listExts:
-				print "Unsupported format. Please provide", listExts, "images"
-				print "Warning", imagePath, "will be not processed"
-				pass
-
-			if not os.path.exists(imagePath):
-				print imagePath, "does not exists"
-				print "Warning", imagePath, "will be not processed"
-			
-			else:
-				toProcess.append(imagePath)
-
-	if not os.path.exists(folderOut):
-		os.makedirs(folderOut)
 
 	times = np.zeros(len(toProcess))
 	
@@ -178,7 +170,7 @@ def run(imagePath, folderIn, folderOut, population, generations, selection, cros
 		if len(toProcess) > 1:
 			print "\n * Total elapsed time %5.2fs" % elapsedAll, "for computing", len(toProcess), "images"
 			print " * Mean elapsed time  %5.2fs per image" % np.mean(times)
-		print '********************************************************************************'
+		print "******************************************************************************************"
 
 if __name__ == '__main__':
 
@@ -222,84 +214,201 @@ if __name__ == '__main__':
 	pressure    = 20
 	elitism     = 1
 	mpi         = False
-	cores       = 4
+	cores       = 5
 	verbose     = False
+
+	warning = False
+	alreadyPrint = False
 
 	for opt, arg in opts:
 		if opt in ("-h", "--help"):
 			print helpString
 			exit(-3)
+		
 		elif opt in ("-i", "--image"):
 			imagePath = arg
+		
 		elif opt in ("-f", "--folder"):
 			folderIn = arg
+		
 		elif opt in ("-o", "--output"):
 			folderOut = arg
+		
 		elif opt in ("-p", "--population"):
-			population = int(arg)
+			try:
+				population = int(arg)
+			except:
+				if not alreadyPrint:
+					print "******************************************************************************************"
+				print " * Warning, the provided population is not correct. It has been set to 100"
+				population = 100
+				warning = True
+				alreadyPrint = True
+
 		elif opt in ("-g", "--generations"):
-			generations = int(arg)
+			try:
+				generations = int(arg)
+			except:
+				if not alreadyPrint:
+					print "******************************************************************************************"
+				print " * Warning, the provided generations is not correct. It has been set to 100"
+				generations = 100
+				warning = True
+				alreadyPrint = True
+
 		elif opt in ("-s", "--selection"):
-			selection = arg
+			try:
+				selection = arg
+			except:
+				if not alreadyPrint:
+					print "******************************************************************************************"
+				print " * Warning, the provided selection is not correct. It has been set to tournament"
+				selection = tournament
+				warning = True
+				alreadyPrint = True
+
 		elif opt in ("-c", "--cross_rate"):
-			cross_rate = float(arg)
+			try:
+				cross_rate = float(arg)
+			except:
+				if not alreadyPrint:
+					print "******************************************************************************************"
+				print " * Warning, the provided cross_rate is not correct. It has been set to 0.9"
+				cross_rate = 0.9
+				warning = True
+				alreadyPrint = True
+
 		elif opt in ("-m", "--mut_rate"):
-			mut_rate = float(arg)
+			try:
+				mut_rate = float(arg)
+			except:
+				if not alreadyPrint:
+					print "******************************************************************************************"
+				print " * Warning, the provided mut_rate is not correct. It has been set to 0.01"
+				mut_rate = 0.01
+				warning = True
+				alreadyPrint = True
+
 		elif opt in ("-k", "--pressure"):
-			pressure = int(arg)
+			try:
+				pressure = int(arg)
+			except:
+				if not alreadyPrint:
+					print "******************************************************************************************"
+				print " * Warning, the provided pressure is. It has been set to 20"
+				pressure = 20
+				warning = True
+				alreadyPrint = True
+		
 		elif opt in ("-e", "--elitism"):
-			elitism = int(arg)
+			try:
+				elitism = int(arg)
+			except:
+				if not alreadyPrint:
+					print "******************************************************************************************"
+				print " * Warning, the provided elitism is not correct. It has been set to 1"
+				elitism = 1
+				warning = True
+				alreadyPrint = True
+
+		elif opt in ("-t", "--cores"):
+			try:
+				cores = int(arg)
+			except:
+				if not alreadyPrint:
+					print "******************************************************************************************"
+				print " * Warning, the provided number of cores is not correct. It has been set to 5"
+				cores = 5
+				warning = True
+				alreadyPrint = True
+		
 		elif opt in ("-d", "--distributed"):
 			mpi = True
-		elif opt in ("-t", "--cores"):
-			cores = int(arg)
+		
 		elif opt in ("-v", "--verbose"):
 			verbose = True
 
+	if warning:
+		print
 
 # ************************************************ Checking provided settings ************************************************
 	warning = False
 	if population <= 0:
+		if not alreadyPrint:
+			print "******************************************************************************************"
 		print " * Warning, the provided population is %d. It has been set to 100"%population
-		cross_rate = 100
+		population = 100
 		warning = True
+		alreadyPrint = True
 
-	if (cross_rate < 0) or (cross_rate > 1):
-		print " * Warning, the provided cross_rate is %f. It has been set to 0.9"%cross_rate
-		cross_rate = 0.9
+	if generations <= 0:
+		if not alreadyPrint:
+			print "******************************************************************************************"
+		print " * Warning, the provided generations is %d. It has been set to 100"%generations
+		generations = 100
 		warning = True
-
-	if (mut_rate < 0) or (mut_rate > 1):
-		print " * Warning, the provided mut_rate is %f. It has been set to 0.01"%mut_rate
-		mut_rate = 0.01
-		warning = True
-
-	if (pressure > population) or (pressure <= 0):
-		print " * Warning, the provided pressure is %d. It has been set to 20"%pressure
-		pressure = 20
-		warning = True
-
-	if (elitism > population) or (elitism < 0):
-		print " * Warning, the provided elitism is %d. It has been set to 1"%elitism
-		elitism = 1
-		warning = True
+		alreadyPrint = True
 
 	if selection not in ["wheel", "ranking", "tournament"]:
+		if not alreadyPrint:
+			print "******************************************************************************************"
 		print " * Warning, the provided selection is %s. It has been set to tournament"%selection
 		selection = "tournament"
 		warning = True
+		alreadyPrint = True
+
+	if (cross_rate < 0) or (cross_rate > 1):
+		if not alreadyPrint:
+			print "******************************************************************************************"
+		print " * Warning, the provided cross_rate is %f. It has been set to 0.9"%cross_rate
+		cross_rate = 0.9
+		warning = True
+		alreadyPrint = True
+
+	if (mut_rate < 0) or (mut_rate > 1):
+		if not alreadyPrint:
+			print "******************************************************************************************"
+		print " * Warning, the provided mut_rate is %f. It has been set to 0.01"%mut_rate
+		mut_rate = 0.01
+		warning = True
+		alreadyPrint = True
+
+	if (pressure > population) or (pressure <= 0):
+		if not alreadyPrint:
+			print "******************************************************************************************"
+		print " * Warning, the provided pressure is %d. It has been set to 20"%pressure
+		pressure = 20
+		warning = True
+		alreadyPrint = True
+
+	if (elitism > population) or (elitism < 0):
+		if not alreadyPrint:
+			print "******************************************************************************************"
+		print " * Warning, the provided elitism is %d. It has been set to 1"%elitism
+		elitism = 1
+		warning = True
+		alreadyPrint = True
 
 	if cores <= 1:
-		print " * Warning, the provided number of cores is %d. It has been set to 4"%cores
-		cores = 4
+		if not alreadyPrint:
+			print "******************************************************************************************"
+		print " * Warning, the provided number of cores is %d. It has been set to 5"%cores
+		cores = 5
 		warning = True
+		alreadyPrint = True
 
 	if (imagePath is None) and (folderIn is None):
+		if not alreadyPrint:
+			print "******************************************************************************************"
 		print " * Please, provide either an image or a folder containing at least an image"
+		print "******************************************************************************************"
 		exit(-4)
 
 	if (imagePath is not None) and (folderIn is not None):
+		if not alreadyPrint:
+			print "******************************************************************************************"
 		print " * Please, provide either an image or a folder containing at least an image"
+		print "******************************************************************************************"
 		exit(-5)
 
 	if warning:

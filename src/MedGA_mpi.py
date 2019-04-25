@@ -14,7 +14,14 @@ def master(toProcess, pathsOutput, population, generations, selection, cross_rat
 	status = MPI.Status()
 
 	times = np.zeros(len(toProcess))
-	idx = 0 
+	idx = 0
+
+	if len(toProcess) == 0:
+		# The Master sends the DIETAG to the Slaves
+		for i in range(1, size):
+			comm.send(obj=None, dest=i, tag=DIETAG)
+		return times
+
 
 	# If the number of images (n) is greater than the available Slaves (size-1)
 	# (size-1) images are run in parallel
@@ -31,6 +38,11 @@ def master(toProcess, pathsOutput, population, generations, selection, cross_rat
 
 			inp = [toProcess[i-1], pathsOutput[i-1], population, generations, selection, cross_rate, mut_rate, elitism, pressure, verbose]
 			comm.send(inp, dest=im_free, tag=WORKTAG)
+
+		for i in range(size, n+1):
+			im_free, elapsed = comm.recv(source=MPI.ANY_SOURCE, tag=10, status=status)
+			times[idx] = elapsed
+			idx += 1
 	
 	# If the number of images (n) is lower than the available cores (size-1)
 	# only n Slaves are used
@@ -101,13 +113,10 @@ if __name__ == '__main__':
 
 	# Master process
 	if rank == 0:
-		sys.stdout.write(" * MedGA is using %d cores\n\n\n" % (size))
-
-		startAll = time.time()
-
 		toProcess   = []
 		pathsOutput = []
 
+		alreadyPrint = False
 		# Looking for the images in the provided input folder
 		listImages = glob.glob(folderIn+os.sep+"*")
 		for imagePath in listImages:
@@ -116,19 +125,63 @@ if __name__ == '__main__':
 
 			# Only tiff, png and jpg images can be elaborated
 			if ext not in listExts:
-				print "Unsupported format. Please provide", listExts, "images"
-				print "Warning", imagePath, "will be not processed"
+				if not alreadyPrint:
+					sys.stdout.write("******************************************************************************************\n")
+				sys.stdout.write( "Unsupported format. Please provide [")
+				for idx,ex in enumerate(listExts):
+					if idx == 0:
+						sys.stdout.write("'%s', "%ex)
+					elif idx == len(listExts)-1:
+						sys.stdout.write("'%s'"%ex)
+					else:
+						sys.stdout.write("'%s', "%ex)
+
+				sys.stdout.write("] images\n")
+				
+				sys.stdout.write( "Warning %s will be not processed\n\n"%imagePath)
+				alreadyPrint = True
 				pass
 
-			if not os.path.exists(imagePath):
-				print imagePath, "does not exists"
-				print "Warning", imagePath, "will be not processed"
+			elif not os.path.exists(imagePath):
+				if not alreadyPrint:
+					sys.stdout.write("******************************************************************************************\n")
+				sys.stdout.write("%s does not exists\n"%imagePath)
+				sys.stdout.write( "Warning %s will be not processed\n\n"%imagePath)
+				alreadyPrint = True
+				pass
 			
 			else:
+
 				toProcess.append(imagePath)
 
+		if verbose and len(toProcess) > 0:
+			sys.stdout.write("******************************************************************************************\n")
+			sys.stdout.write("* Running the MPI version of MedGA\n\n")
+
+			sys.stdout.write( " * GA settings\n")
+			sys.stdout.write( "   -> Number of chromosome: %d\n"%population)
+			sys.stdout.write( "   -> Number of elite chromosomes: %d\n"%elitism)
+			sys.stdout.write( "   -> Number of generations: %d\n"%generations)
+			sys.stdout.write( "   -> Crossover rate: %.2f\n"%cross_rate)
+			sys.stdout.write( "   -> Mutation rate:  %.2f\n"%mut_rate)
+
+			if selection == 'wheel':
+				sys.stdout.write( "   -> Selection: wheel roulette\n\n\n")
+			elif selection == 'ranking':
+				sys.stdout.write( "   -> Selection: ranking \n\n\n")
+			else:
+				sys.stdout.write( "   -> Selection: tournament with %d individuals\n\n\n"%pressure)
+
+		if len(toProcess) > 0:
+
+			if not os.path.exists(folderOut):
+				os.makedirs(folderOut)
+
+			for i in xrange(len(toProcess)):
+
 				# Output folders
-				string    = imagePath.split("/")[1:]
+				string    = toProcess[i].split("/")[1:]
+
 				subfolder = string[-1].split(".")[:-1]
 
 				pathOutput = folderOut+os.sep+subfolder[0]
@@ -138,6 +191,9 @@ if __name__ == '__main__':
 
 				pathsOutput.append(pathOutput)
 
+			sys.stdout.write(" * MedGA is using %d cores\n\n\n" % (size))
+
+		startAll = time.time()
 		times = master(toProcess, pathsOutput, population, generations, selection, cross_rate, mut_rate, elitism, pressure, verbose)
 
 	# Slave process
@@ -149,9 +205,11 @@ if __name__ == '__main__':
 		endAll     = time.time()
 		elapsedAll = endAll-startAll
 
-		if verbose:
+		if len(toProcess) == 0:
+			sys.stdout.write("******************************************************************************************\n")
+
+		if verbose and len(toProcess) > 0:
 			if len(toProcess) > 1:
 				sys.stdout.write("\n * Total elapsed time %5.2fs for computing %d images\n" % (elapsedAll, len(toProcess)))
 				sys.stdout.write(" * Mean elapsed time  %5.2fs per image\n" % (np.mean(times)))
-			sys.stdout.write('********************************************************************************\n')
-
+				sys.stdout.write("******************************************************************************************\n")
