@@ -83,10 +83,10 @@ class chromosome(object):
 
     def __optimalThreshold(self, hist_vals, delta_T, max_it):
 
-        #Initializing the output value
+        # Initializing the output value
         opt_T = 1
     
-        #Initializing the threshold to the global mean
+        # Initializing the threshold to the global mean
         h_dim = len(hist_vals)
         total_pixel_number = np.sum(hist_vals)
         weighted_hist_sum = 0
@@ -95,14 +95,14 @@ class chromosome(object):
         
         hist_mean = weighted_hist_sum / (total_pixel_number*1.0)
         
-        #If the the histogram mean is equal to 0, the procedure ends  
+        # If the histogram mean is equal to 0, the procedure ends  
         if hist_mean == 0:
             return opt_T
     
-        #Threshold at step k
+        # Threshold at step k
         T_k = 0
         
-        #Threshold at step k+1
+        # Threshold at step k+1
         T_k1 = int(math.floor(hist_mean))
         
         # Iteration counter
@@ -115,7 +115,7 @@ class chromosome(object):
             # Updating the threshold
             T_k = T_k1
             
-            # Splitting the histogram H in two sub-histograms H1 and H2 by means of the threshold T_k
+            # Splitting the histogram H into two sub-histograms H1 and H2 by means of the threshold T_k
             H1_pixel_number = 0
             H2_pixel_number = 0
             for i in range(0, T_k):
@@ -252,7 +252,7 @@ class gene(object):
         
         self.position = value
 
-# Class containing the genetic operators (crossover and mutation)            
+# Class containing the genetic operators (i.e., crossover and mutation)            
 class geneticOperation(object):
 
     # Mutation of the genes

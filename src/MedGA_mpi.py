@@ -23,14 +23,14 @@ def master(toProcess, pathsOutput, population, generations, selection, cross_rat
 		return times
 
 
-	# If the number of images (n) is greater than the available Slaves (size-1)
+	# If the number of the images (n) is higher than the available Slaves (size-1),
 	# (size-1) images are run in parallel
 	if n > (size-1):
 		for i in range(1, size):
 			inp = [toProcess[i-1], pathsOutput[i-1], population, generations, selection, cross_rate, mut_rate, elitism, pressure, verbose]
 			comm.send(inp, dest=i, tag=WORKTAG)
 
-		# As soon as a Slave is available, the master assigns it a new image to process
+		# As soon as a Slave is available, the Master assigns it a new image to process
 		for i in range(size, n+1):
 			im_free, elapsed = comm.recv(source=MPI.ANY_SOURCE, tag=10, status=status)
 			times[idx] = elapsed
@@ -44,7 +44,7 @@ def master(toProcess, pathsOutput, population, generations, selection, cross_rat
 			times[idx] = elapsed
 			idx += 1
 	
-	# If the number of images (n) is lower than the available cores (size-1)
+	# If the number of images (n) is lower than the available cores (size-1),
 	# only n Slaves are used
 	else:
 		for i in range(0, n):
@@ -67,7 +67,7 @@ def slave():
 	while True:
 		status = MPI.Status()
 
-		# The Slave waits an image to process
+		# The Slave waits for an image to process
 		inp = comm.recv(source=0, tag=MPI.ANY_TAG, status=status)
 		elapsed = 0
 		
@@ -75,7 +75,7 @@ def slave():
 
 			start = time.time()
 
-			# MedGA execution on the provided image by using the provided GA settings
+			# MedGA execution on the input image by using the provided GA settings
 			medga = MedGA(inp[0], inp[1])
 			medga.startGA(inp[2], inp[3], inp[4], inp[5], inp[6], inp[7], inp[8])
 
@@ -123,7 +123,7 @@ if __name__ == '__main__':
 			ext = imagePath.split(".")[-1].lower()
 			listExts = ["tiff", "tif", "png", "png", "jpeg", "jpg"]
 
-			# Only tiff, png and jpg images can be elaborated
+			# Only tiff, png and jpg images can be analyzed
 			if ext not in listExts:
 				if not alreadyPrint:
 					sys.stdout.write("******************************************************************************************\n")

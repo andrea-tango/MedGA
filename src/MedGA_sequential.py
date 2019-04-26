@@ -34,7 +34,7 @@ class MedGA(object):
 
 	def startGA(self, pop_size, numGen, selection, cross_rate, mut_rate, elitism, numberIndTour, minGL = 1):
 
-		#Image Processing object
+		# Image Processing object
 		imPros = processing()
 		
 		# Paths used to save the images and other information
@@ -52,7 +52,7 @@ class MedGA(object):
 		# Reading the input image
 		self.__targetMatrix, numberGrayLevel, self.__targetHist, self.__noZeroPosHist, maxValueGray, T_k  = imPros.loadImage(self.__pathIn, self.__outputName )
 
-		# GAs settings
+		# GA settings
 		self.__childrenPerGen 	= pop_size - elitism # number of new individuals for each generation
 		self.__numberOfGenes	= numberGrayLevel
 		self.__minGrayLevel		= minGL
@@ -113,7 +113,7 @@ class MedGA(object):
 
 		op = geneticOperation()
 		
-		# The population evolves for numGen-1 generations
+		# The population evolves for (numGen-1) generations
 		for i in range(1, numGen):
 
 			# Roulette wheel selection
@@ -193,7 +193,7 @@ class MedGA(object):
 					children.append(parent_2)
 					countWhile = countWhile-2
 
-			# Elitism to mantain the best individual(s) during the evolution
+			# Elitism to keep the best individual(s) during the evolution
 			pop[elitism:n] = deepcopy(children[0:self.__childrenPerGen])
 
 			# Sorting the population based on the fitness values
