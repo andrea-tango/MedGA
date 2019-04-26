@@ -5,14 +5,14 @@ MedGA is a novel evolutionary method based on Genetic Algorithms for the enhance
 MedGA tackles the complexity of the enhancement problem by exploiting Genetic Algorithms (GAs) to improve the appearance and the visual quality of images characterized by a bimodal gray level intensity histogram, by strengthening their two underlying sub-distributions.
 This novel medical image enhancement technique is a promising solution suitable for medical expert systems.
 
-  1. [Reference](#ref) 
+  1. [References](#ref) 
   2. [Required libraries](#lib) 
   3. [Input parameters](#inp)
-  4. [Data](#data)
+  4. [Datasets](#data)
   5. [License](#lic)
   6. [Contacts](#cont)
   
-## <a name="ref"></a>Reference ##
+## <a name="ref"></a>References ##
 
 A detailed description of MedGA, as well as a complete experimental comparison against state-of-the-art image enhancement techniques by using the dataset described below ([Data](#data)), can be found in:
 
@@ -33,9 +33,6 @@ MedGA exploits the following libraries:
 - `matplotlib`
 - `pillow`
 - `mpi4py`, which provides bindings of the Message Passing Interface (MPI) specifications for Python.
-
-The input images are characterized by an undelying bimodal histogram (i.e., intensity level distribution).
-Possibly, these images might be previously masked and cropped images (according to a bounding region containing the Region of Interest).
 
 The sequential version has been developed to analyze a single medical image, while the parallel version is based on a Master-Slave paradigm employing `mpi4py` to leverage High-Performance Computing (HPC) resources.
 The parallel version has been implementated to perform the enhancement of multiple images (or slices in the case of tomography image stack analysis) in a distributed fashion.
@@ -83,9 +80,12 @@ The **latter** will save the described files and subfolder for each image in the
 
 By running `python MedGA.py` without specifying any parameter (or using `-h`), all the above parameters will be listed.
 
-## <a name="data"></a>Data ##
+## <a name="datasets"></a>Data ##
 
-### Dataset ###
+MedGA was tested and validated on two MRI datasets: (i) uterine fibroids underwent Magnetic Resonance guided Focused Ultrasound Surgery (MRgFUA); (ii) brain metastases treated by using neuro-radiosurgery.
+
+In general, MedGA is suitable for input images characterized by an undelying bimodal histogram (i.e., intensity level distribution).
+Possibly, these images might be previously masked and cropped images (according to a bounding region containing the Region of Interest).
 
 ## <a name="lic"></a>License ##
 
