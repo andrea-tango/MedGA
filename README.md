@@ -6,7 +6,7 @@ MedGA tackles the complexity of the enhancement problem by exploiting Genetic Al
 This novel medical image enhancement technique is a promising solution suitable for medical expert systems.
 
   1. [Reference](#ref) 
-  2. [Required library](#lib) 
+  2. [Required libraries](#lib) 
   3. [Input parameters](#inp)
   4. [Data](#data)
   5. [License](#lic)
@@ -14,12 +14,12 @@ This novel medical image enhancement technique is a promising solution suitable 
   
 ## <a name="ref"></a>Reference ##
 
-A detailed description of MedGA, as well as a complete experimental comparison with standard state-of-the-art approaches for image enhancement by using the dataset described below ([Data](#data)), can be found in:
+A detailed description of MedGA, as well as a complete experimental comparison against state-of-the-art image enhancement techniques by using the dataset described below ([Data](#data)), can be found in:
 
 - Rundo L., Tangherloni A., Nobile M.S., Militello C., Besozzi D., Mauri G., and Cazzaniga P.: "MedGA: a novel evolutionary method for image enhancement in medical imaging systems", Expert Systems with Applications, 119, 387-399, 2019. doi: 10.1016/j.eswa.2018.11.013
 
 
-MedGA has been applied as a preprocessing step of a novel evolutionary framework for image enhancement, automatic global thresholding and segmentation. This framework has been applied to different clinical scenarios involving bimodal MR image analysis, as described in:
+MedGA has been applied as a preprocessing step of a novel evolutionary framework for image enhancement, segmentation, and quantification. This framework has been applied to different clinical scenarios involving bimodal MR image analysis, as described in:
 
 - Rundo L., Tangherloni A., Cazzaniga P., Nobile M.S., Russo G., Gilardi M.C., Vitabile S., Mauri G., Besozzi D., and Militello, C.: "A novel framework for MR image segmentation and quantification by using MedGA", Computer Methods and Programs in Biomedicine, 2019. doi: 10.1016/j.cmpb.2019.04.016
 
@@ -34,19 +34,22 @@ MedGA exploits the following libraries:
 - `pillow`
 - `mpi4py`, which provides bindings of the Message Passing Interface (MPI) specifications for Python.
 
+The input images are characterized by an undelying bimodal histogram (i.e., intensity level distribution).
+Possibly, these images might be previously masked and cropped images (according to a bounding region containing the Region of Interest).
+
 The sequential version has been developed to analyze a single medical image, while the parallel version is based on a Master-Slave paradigm employing `mpi4py` to leverage High-Performance Computing (HPC) resources.
-The parallel version has been implementated to perform the enhancement of multiple images (or slices in the case of tomography image stack analysis) in a parallel fashion.
+The parallel version has been implementated to perform the enhancement of multiple images (or slices in the case of tomography image stack analysis) in a distributed fashion.
 
 Notice that `MPI` (such as mpich on Linux OS, Open MPI on MacOS X, and MS-MPI on Windows) and `mpi4py` are not strictly required. The sequential version of MedGA can be used to analyze a folder containing multiple images.
 
 ## <a name="inp"></a>Input parameters ##
 
-In oder to run MedGA, the following parameter must be provided:
+In oder to run MedGA, the following parameters must be provided:
 
 - `-f` to specify the input folder containing the images to process (in TIFF/TIF, PNG, JPEG/JPG format);
 - `-i` to specify the input image to process (in TIFF/TIF, PNG, JPEG/JPG format);
 
-Note that `-f` and `-i` are mutual exclusive. If both of them are used, MedGA stops requiring either `-f` or `-i`.
+Note that `-f` and `-i` are mutually exclusive. If both of them are used, MedGA stops requiring either `-f` or `-i`.
   
 Optional parameters could be provided:
 
