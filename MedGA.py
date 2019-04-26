@@ -88,7 +88,7 @@ def run(imagePath, folderIn, folderOut, population, generations, selection, cros
 			ext = imagePath.split(".")[-1]
 			listExts = ["tiff", "tif", "png", "png", "jpeg", "jpg"]
 
-			# Only tiff, png and jpg images can be elaborated
+			# Only tiff, png and jpg images can be analyzed
 			if ext not in listExts:
 				if not alreadyPrint:
 					print "******************************************************************************************"
