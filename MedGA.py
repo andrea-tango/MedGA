@@ -36,7 +36,7 @@ def runMPI(folderIn, folderOut, population, generations, selection, cross_rate, 
 			                                                                          cross_rate, mut_rate, pressure,
 			                                                                          elitism, str(verbose))
 		
-		# Calling the MPI version of MedGA, which distributes the computation on multiple cores
+		# Calling the MPI version of MedGA, which distributes the computation onto multiple cores
 		# by means of a Master-Slave paradigm
 		p = subprocess.call(run, shell=True)
 	except:
@@ -136,6 +136,8 @@ def run(imagePath, folderIn, folderOut, population, generations, selection, cros
 	times = np.zeros(len(toProcess))
 	
 	# Processing the images in the input folder
+	# The input images are characterized by an undelying bimodal histogram (intensity level distribution)
+	# Possibly, previously masked and cropped images (according to a bounding region containing the Region of Interest) 
 	for i in xrange(len(toProcess)):
 
 		# Output folders
@@ -296,7 +298,7 @@ if __name__ == '__main__':
 			except:
 				if not alreadyPrint:
 					print "******************************************************************************************"
-				print " * Warning, the provided pressure is. It has been set to 20"
+				print " * Warning, the provided pressure is not correct. It has been set to 20"
 				pressure = 20
 				warning = True
 				alreadyPrint = True
