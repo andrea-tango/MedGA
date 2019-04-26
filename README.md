@@ -23,7 +23,7 @@ MedGA has been applied as a preprocessing step of a novel evolutionary framework
 
 - Rundo L., Tangherloni A., Cazzaniga P., Nobile M.S., Russo G., Gilardi M.C., Vitabile S., Mauri G., Besozzi D., and Militello, C.: "A novel framework for MR image segmentation and quantification by using MedGA", Computer Methods and Programs in Biomedicine, 2019. doi: 10.1016/j.cmpb.2019.04.016
 
-## <a name="lib"></a>Required library ##
+## <a name="lib"></a>Required libraries ##
 
 MedGA has been developed in Python 2.7 and tested on Ubuntu Linux, MacOS X and Windows.
 
