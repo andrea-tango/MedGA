@@ -82,7 +82,7 @@ By running `python MedGA.py` without specifying any parameter (or using `-h`), a
 
 ## <a name="datasets"></a>Data ##
 
-MedGA was tested and validated on two MRI datasets: (i) uterine fibroids underwent Magnetic Resonance guided Focused Ultrasound Surgery (MRgFUA); (ii) brain metastases treated by using neuro-radiosurgery.
+MedGA was tested and validated on two MRI datasets: (i) uterine fibroids underwent Magnetic Resonance guided Focused Ultrasound Surgery (MRgFUS); (ii) brain metastases treated by using neuro-radiosurgery.
 
 In general, MedGA is suitable for input images characterized by an undelying bimodal histogram (i.e., intensity level distribution).
 Possibly, these images might be previously masked and cropped images (according to a bounding region containing the Region of Interest).
